@@ -1,0 +1,87 @@
+<template>
+    <v-data-table
+            v-model="selected"
+            :headers="headers"
+            :items="items"
+            item-key="key"
+            hide-actions
+            select-all
+            class="elevation-1"
+    >
+        <template slot="items" slot-scope="props" >
+            <td style="width: 10%">
+                <v-checkbox
+                        v-model="props.selected"
+                        primary
+                        hide-details
+                ></v-checkbox>
+            </td>
+            <td>
+                <v-edit-dialog
+                        :return-value.sync="props.item.key"
+                        lazy
+                        @save="save"
+                        @cancel="cancel"
+                        @open="open"
+                        @close="close"
+                > {{ props.item.key }}
+                    <v-text-field
+                            slot="input"
+                            v-model="props.item.key"
+                            label="key"
+                            single-line
+                    ></v-text-field>
+                </v-edit-dialog>
+            </td>
+            <td>
+                <v-edit-dialog
+                        :return-value.sync="props.item.value"
+                        lazy
+                        @save="save"
+                        @cancel="cancel"
+                        @open="open"
+                        @close="close"
+                > {{ props.item.value }}
+                    <v-text-field
+                            slot="input"
+                            v-model="props.item.value"
+                            label="value"
+                            single-line
+                    ></v-text-field>
+                </v-edit-dialog>
+            </td>
+            <td style="text-align: left">{{props.item.description}}</td>
+        </template>
+    </v-data-table>
+</template>
+
+<script>
+  export default {
+    name: 'lineEditTable',
+    props: {
+      items: []
+    },
+    data () {
+      return {
+        selected: [],
+        headers: [{
+          text: '键',
+          sortable: false,
+          value: 'key'
+        }, {
+          text: '值',
+          sortable: false,
+          value: 'value'
+        }, {
+          text: '备注',
+          sortable: false,
+          value: 'description'
+        }]
+      }
+    }
+  }
+</script>
+
+<style scoped>
+
+</style>
