@@ -8,7 +8,7 @@
             select-all
             class="elevation-1"
     >
-        <template slot="items" slot-scope="props" >
+        <template slot="items" slot-scope="props">
             <td style="width: 10%">
                 <v-checkbox
                         v-model="props.selected"
@@ -20,10 +20,6 @@
                 <v-edit-dialog
                         :return-value.sync="props.item.key"
                         lazy
-                        @save="save"
-                        @cancel="cancel"
-                        @open="open"
-                        @close="close"
                 > {{ props.item.key }}
                     <v-text-field
                             slot="input"
@@ -33,14 +29,10 @@
                     ></v-text-field>
                 </v-edit-dialog>
             </td>
-            <td>
+            <td style="width: 50%">
                 <v-edit-dialog
                         :return-value.sync="props.item.value"
                         lazy
-                        @save="save"
-                        @cancel="cancel"
-                        @open="open"
-                        @close="close"
                 > {{ props.item.value }}
                     <v-text-field
                             slot="input"
@@ -59,7 +51,7 @@
   export default {
     name: 'lineEditTable',
     props: {
-      items: []
+      items: Array
     },
     data () {
       return {

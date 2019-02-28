@@ -20,9 +20,9 @@
                     >
                         <template slot="items" slot-scope="props">
                             <tr @click="props.expanded = !props.expanded">
-                                <td class="text-xs-left">{{ props.item.spaceName }}</td>
-                                <td class="text-xs-left">{{ props.item.spaceKey }}</td>
-                                <td class="text-xs-left">{{ props.item.apiGateway }}</td>
+                                <td class="text-xs-left">{{ props.item.name }}</td>
+                                <td class="text-xs-left">{{ props.item.key}}</td>
+                                <td class="text-xs-left">{{ props.item.host}}</td>
                                 <td class="text-xs-left">{{ props.item.statusDesc }}</td>
                                 <td class="text-xs-left">
                                     <v-tooltip bottom>
@@ -37,7 +37,6 @@
                                         </v-btn>
                                         <span>删除工作空间</span>
                                     </v-tooltip>
-
                                     <v-tooltip bottom v-if="!props.item.status || props.item.status == 0">
                                         <v-btn flat icon color="blue" slot="activator"
                                                v-on:click="changeWorkspace(props.item)">
@@ -63,6 +62,11 @@
                     <span class="headline">创建工作空间</span>
                 </v-card-title>
                 <v-card-text>
+                    <v-text-field
+                            label="项目名称"
+                            value="lovelorn"
+                            hint="请输入项目名称"
+                    ></v-text-field>
                     <v-layout>
                         <v-flex xs12 md6>
                             <v-text-field
@@ -76,7 +80,6 @@
                                     label="空间唯一标识"
                                     type="spaceKey"
                                     hint="不可重复，全局唯一"
-                                    v-model="application"
                             ></v-text-field>
                         </v-flex>
                     </v-layout>
@@ -110,10 +113,10 @@
         {
           text: '空间名称',
           sortable: false,
-          value: 'spaceName'
+          value: 'name'
         },
-        {text: '命名空间', value: 'spaceKey'},
-        {text: '网关地址', value: 'apiGateway'},
+        {text: '命名空间', value: 'key'},
+        {text: '网关地址', value: 'host'},
         {text: '连接状态', value: 'status'},
         {text: '操作', value: 'iron'}
       ],
@@ -135,7 +138,7 @@
     methods: {
       changeWorkspace: function (nws) {
         this.spaceItems.forEach(function (item) {
-          if (item.spaceKey === nws['spaceKey']) {
+          if (item.key === nws['key']) {
             item['statusDesc'] = '已连接'
             item.status = 1
           } else {

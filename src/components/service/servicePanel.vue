@@ -21,13 +21,11 @@
                         <template slot="items" slot-scope="props">
                             <tr @click="props.expanded = !props.expanded">
                                 <td class="text-xs-left">{{ props.item.serviceName }}</td>
-                                <td class="text-xs-left">{{ props.item.serviceId }}</td>
-                                <td class="text-xs-left">{{ props.item.apiName }}</td>
                                 <td class="text-xs-left">{{ props.item.description }}</td>
                                 <td class="text-xs-left">{{ props.item.pathCount }}</td>
                                 <td class="text-xs-left">
                                     <v-tooltip bottom>
-                                        <v-btn flat icon color="primary" slot="activator">
+                                        <v-btn flat icon color="primary" slot="activator" v-on:click="goPath(props.item)">
                                             <v-icon>list</v-icon>
                                         </v-btn>
                                         <span>接口列表</span>
@@ -63,8 +61,6 @@
           sortable: false,
           value: 'serviceName'
         },
-        {text: '服务标识', value: 'serviceId'},
-        {text: '接口名称', value: 'apiName'},
         {text: '备注', value: 'description'},
         {text: '接口数量', value: 'pathCount'},
         {text: '操作', value: 'iron'}
@@ -73,6 +69,11 @@
     }),
     created () {
       this.serviceItems = this.$api.service.list()
+    },
+    methods: {
+      goPath: function (item) {
+        this.$router.push({name: 'pathPanel', query: {findType: 'service', value: item.serviceName}})
+      }
     }
   }
 </script>

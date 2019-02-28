@@ -30,15 +30,15 @@ export default new Router({
     components: {default: servicePanel}
   }, {
     path: '/project/path/list',
-    name: 'servicePanel',
+    name: 'pathPanel',
     components: {default: pathPanel}
   }, {
     path: '/workspace/list',
     name: 'spacePanel',
     components: {default: spacePanel}
   }, {
-    path: '/testcase/http',
-    name: 'httpCallForm',
+    path: '/testcase/http/:service/:path',
+    name: 'httpExecute',
     components: {default: httpExecute}
   }]
 })

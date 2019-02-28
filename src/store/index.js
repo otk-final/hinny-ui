@@ -20,7 +20,7 @@ const drawerMenu = [
     icon: 'edit',
     path: '/testcase',
     items: [
-      {title: '接口策略', path: '/testcase/http'},
+      {title: '接口策略', path: '/testcase/http/s/deq'},
       {title: '流程策略', path: '/testcase/tagRule', badge: 'new'}
     ]
   },
