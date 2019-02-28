@@ -147,13 +147,12 @@
       let queryArgs = []
 
       primary.parameters.forEach(function (p) {
-        let arg = {key: p.name, value: '', description: p.description}
         if (p.in === 'query') {
-          pathArgs.push(arg)
+          pathArgs.push(p)
         } else if (p.in === 'header') {
-          headerArgs.push(arg)
+          headerArgs.push(p)
         } else if (p.in === 'path') {
-          queryArgs.push(arg)
+          queryArgs.push(p)
         }
       })
 

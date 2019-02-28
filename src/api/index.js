@@ -109,7 +109,8 @@ const api = {
               name: 'version',
               in: 'path',
               required: true,
-              type: 'string'
+              type: 'string',
+              description: '版本号'
             }
           ],
         scheme:

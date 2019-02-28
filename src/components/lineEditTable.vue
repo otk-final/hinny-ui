@@ -16,24 +16,26 @@
                         hide-details
                 ></v-checkbox>
             </td>
+
             <td>
                 <v-edit-dialog
-                        :return-value.sync="props.item.key"
+                        :return-value="props.item.name"
                         lazy
-                > {{ props.item.key }}
+                > {{ props.item.name }}
                     <v-text-field
                             slot="input"
-                            v-model="props.item.key"
-                            label="key"
+                            v-model="props.item.name"
+                            label="name"
                             single-line
                     ></v-text-field>
                 </v-edit-dialog>
             </td>
+
             <td style="width: 50%">
                 <v-edit-dialog
-                        :return-value.sync="props.item.value"
+                        :return-value="props.item.value"
                         lazy
-                > {{ props.item.value }}
+                >{{ props.item.value }}
                     <v-text-field
                             slot="input"
                             v-model="props.item.value"
@@ -42,6 +44,7 @@
                     ></v-text-field>
                 </v-edit-dialog>
             </td>
+
             <td style="text-align: left">{{props.item.description}}</td>
         </template>
     </v-data-table>
@@ -59,7 +62,7 @@
         headers: [{
           text: '键',
           sortable: false,
-          value: 'key'
+          value: 'name'
         }, {
           text: '值',
           sortable: false,
