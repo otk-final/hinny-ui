@@ -11,7 +11,7 @@
             </v-flex>
             <v-flex xs12>
                 <v-data-table
-                        :items="basic"
+                        :items="basicItems"
                         class="elevation-1"
                         hide-actions
                         hide-headers>
@@ -34,19 +34,22 @@
                     <v-tab>报文体</v-tab>
                     <v-tab>验证脚本</v-tab>
                     <v-tab-item>
-                        <line-edit-table :items="reqHeaders"></line-edit-table>
+                        <line-edit-table :items="requestArg.headers"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
-                        <line-edit-table :items="reqPaths"></line-edit-table>
+                        <line-edit-table :items="requestArg.paths"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
-                        <line-edit-table :items="reqParameters"></line-edit-table>
+                        <line-edit-table :items="requestArg.querys"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
-                        <vue-json-editor :show-btns="false" :mode="code" :modes="modes"></vue-json-editor>
+                        <vue-json-editor :show-btns="false"
+                                         :modes="modes"
+                                         :value="requestArg.body">
+                        </vue-json-editor>
                     </v-tab-item>
                     <v-tab-item>
-                        <ace-editor v-model="content" :lang="javascript" :readonly="false"></ace-editor>
+                        <ace-editor v-model="valid.script" :lang="valid.type" :readonly="false"></ace-editor>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -60,10 +63,13 @@
                     <v-tab>响应头</v-tab>
                     <v-tab>响应报文</v-tab>
                     <v-tab-item>
-                        <line-edit-table :items="reqHeaders"></line-edit-table>
+                        <line-edit-table :items="responseArg.headers"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
-                        <vue-json-editor :show-btns="false" :mode="code" :modes="modes"></vue-json-editor>
+                        <vue-json-editor :show-btns="false"
+                                         :modes="modes"
+                                         :value="responseArg.body">
+                        </vue-json-editor>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -72,7 +78,7 @@
             </v-flex>
             <v-flex xs12>
                 <v-data-table
-                        :items="validResults"
+                        :items="valid.results"
                         :headers="validHeaders"
                         class="elevation-1"
                         hide-actions>
@@ -96,7 +102,7 @@
 
 <script>
   import breadcrumb from '@/components/breadcrumb'
-  import lineEditTable from '@/components/service/lineEditTable'
+  import lineEditTable from '@/components/lineEditTable'
   import vueJsonEditor from 'vue-json-editor'
   import aceEditor from '@/components/aceEditor'
 
@@ -112,38 +118,58 @@
       breadcrumb
     },
     data: () => ({
-      breads: [{text: '项目管理', href: ''}, {text: '接口查询', href: ''}, {text: '添加活动', href: ''}],
-      reqHeaders: [{key: 'token', value: 'fdsfd', description: '用户Token'}, {
-        key: 'tenantId',
-        value: 'lovelorn',
-        description: '租户标识'
-      }],
-      reqPaths: [{key: 'version', value: 'v1', description: '版本号'}],
-      reqParameters: [{key: 'pageNo', value: 1, description: ''}, {key: 'pageSize', value: 10, description: ''}],
-      basic: [
-        {name: '服务', value: 'lovelorn'},
-        {name: '所属组', value: '运营待办-评论中心'},
-        {name: '接口名称', value: '提交评论'},
-        {name: '请求方法', value: 'POST'},
-        {name: '请求地址', value: '/{version}/pv/todo-comment/action/list-admin'}],
+      breads: [{text: '项目管理', href: ''}, {text: '接口查询', href: ''}],
       modes: ['code', 'tree', 'text', 'view'],
-      content: '',
+      validHeaders: [
+        {text: '规则说明', sortable: false, value: 'rule'},
+        {text: '验证结果', sortable: false, value: 'msg'},
+        {text: '状态', sortable: false, value: 'ok'}],
+      basicItems: [],
+      requestArg: {},
+      responseArg: {},
+      schemeReq: {},
+      schemeResp: {},
+      valid: {}
+    }),
+    created () {
+      let primary = this.$api.path.primary('')
+      this.basicItems = [
+        {name: '服务说明', value: primary.basic.service.description},
+        {name: '请求方法', value: primary.basic.method},
+        {name: '请求地址', value: primary.basic.path}
+      ]
 
-      validHeaders: [{
-        text: '规则说明',
-        sortable: false,
-        value: 'rule'
-      }, {
-        text: '验证结果',
-        sortable: false,
-        value: 'msg'
-      }, {
-        text: '状态',
-        sortable: false,
-        value: 'ok'
-      }],
-      validResults: [{ok: true, rule: '响应码'}, {ok: false, rule: '评论标识不能为空', msg: '异常，，，'}, {ok: false, msg: 'daad'}]
-    })
+      this.breads.push({text: primary.basic.service.serviceName})
+      this.breads.push({strong: primary.basic.description})
+
+      let pathArgs = []
+      let headerArgs = []
+      let queryArgs = []
+
+      primary.parameters.forEach(function (p) {
+        let arg = {key: p.name, value: '', description: p.description}
+        if (p.in === 'query') {
+          pathArgs.push(arg)
+        } else if (p.in === 'header') {
+          headerArgs.push(arg)
+        } else if (p.in === 'path') {
+          queryArgs.push(arg)
+        }
+      })
+
+      this.requestArg = {
+        paths: pathArgs,
+        headers: headerArgs,
+        querys: queryArgs,
+        body: JSON.parse(primary.scheme.req)
+      }
+      this.responseArg = {headers: [], body: JSON.parse(primary.scheme.resp)}
+      this.valid = {
+        type: primary.valid.scriptType,
+        script: primary.valid.script,
+        results: primary.valid.results
+      }
+    }
   }
 </script>
 
