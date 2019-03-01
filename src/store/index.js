@@ -5,13 +5,13 @@ Vue.use(Vuex)
 
 const drawerMenu = [
   {title: '搜索', path: '/search', icon: 'search'},
-  {title: '工作空间', path: '/workspace/list', icon: 'apps', badge: 'feature'},
+  {title: '工作空间', path: '/workspace/action/list', icon: 'apps', badge: 'feature'},
   {
     title: '项目管理',
     icon: 'code',
     group: 'project',
     items: [
-      {title: '服务列表', path: '/project/service/list'},
+      {title: '服务列表', path: '/service/action/list'},
       {title: '接口查询', path: '/project/path/list', badge: 'new'}
     ]
   },

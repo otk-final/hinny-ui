@@ -25,7 +25,7 @@ import httpExecute from '@/components/service/httpExecute'
 Vue.use(Router)
 export default new Router({
   routes: [{
-    path: '/project/service/list',
+    path: '/service/action/list',
     name: 'servicePanel',
     components: {default: servicePanel}
   }, {
@@ -33,11 +33,11 @@ export default new Router({
     name: 'pathPanel',
     components: {default: pathPanel}
   }, {
-    path: '/workspace/list',
+    path: '/workspace/action/list',
     name: 'spacePanel',
     components: {default: spacePanel}
   }, {
-    path: '/testcase/http/:service/:path',
+    path: '/testcase/http',
     name: 'httpExecute',
     components: {default: httpExecute}
   }]

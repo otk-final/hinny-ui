@@ -39,9 +39,10 @@
                             :headers="headers"
                             :items="pathItems"
                             item-key="name"
+                            hide-actions
                     >
                         <template slot="items" slot-scope="props">
-                            <tr @click="props.expanded = !props.expanded">
+                            <tr>
                                 <td class="text-xs-left">{{ props.item.service.serviceName }}</td>
                                 <td class="text-xs-left">{{ props.item.service.description }}</td>
                                 <td class="text-xs-left">{{ props.item.method }}</td>
@@ -70,7 +71,7 @@
 </template>
 
 <script>
-  import breadcrumb from '@/components/breadcrumb'
+  import breadcrumb from '@/components/common/breadcrumb'
 
   export default {
     name: 'pathPanel',
@@ -102,22 +103,26 @@
       let query = this.$route.query
       if (query.findType && query.value !== '') {
         this.searchChecked = query.findType
-        this.searchText = query.value + '.*'
+        this.searchText = query.value
       }
       this.search(this.searchChecked, this.searchText)
     },
     methods: {
       search: function (type, typeValue) {
-        this.pathItems = this.$api.path.list(type, typeValue)
+        this.$http.get('/path/action/list', {
+          params: {type: type, typeValue: typeValue}
+        }).then((resp) => {
+          this.pathItems = resp.data
+        })
       },
       enterSearch: function () {
         return this.search(this.searchChecked, this.searchText)
       },
       http: function (item) {
+        debugger
         this.$router.push({
           name: 'httpExecute',
-          params: {service: item.serviceName, path: item.path},
-          query: {type: 'execute'}
+          query: {type: 'execute', primaryId: item.primary_id}
         })
       }
     }

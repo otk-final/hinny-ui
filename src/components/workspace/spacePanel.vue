@@ -17,6 +17,7 @@
                             :headers="headers"
                             :items="spaceItems"
                             item-key="name"
+                            hide-actions
                     >
                         <template slot="items" slot-scope="props">
                             <tr @click="props.expanded = !props.expanded">
@@ -102,7 +103,7 @@
 
 <script>
 
-  import breadcrumb from '@/components/breadcrumb'
+  import breadcrumb from '@/components/common/breadcrumb'
 
   export default {
     name: 'spacePanel',
@@ -125,15 +126,17 @@
     }),
     created () {
       // 查询所有空间
-      this.spaceItems = this.$api.workspace.list()
-      /**
-       * 获取用户当前工作空间
-       */
-      let nws = this.$store.state.currentWorkspace
-      if (!nws) {
-        return
-      }
-      this.changeWorkspace(nws)
+      this.$http.get('/workspace/action/list').then((resp) => {
+        this.spaceItems = resp.data
+        /**
+         * 获取用户当前工作空间
+         */
+        let nws = this.$store.state.currentWorkspace
+        if (!nws) {
+          return
+        }
+        this.changeWorkspace(nws)
+      })
     },
     methods: {
       changeWorkspace: function (nws) {

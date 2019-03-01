@@ -101,10 +101,10 @@
 </template>
 
 <script>
-  import breadcrumb from '@/components/breadcrumb'
-  import lineEditTable from '@/components/lineEditTable'
+  import breadcrumb from '@/components/common/breadcrumb'
+  import lineEditTable from '@/components/common/lineEditTable'
   import vueJsonEditor from 'vue-json-editor'
-  import aceEditor from '@/components/aceEditor'
+  import aceEditor from '@/components/common/aceEditor'
 
   import 'brace/mode/javascript'
   import 'brace/theme/chrome'
@@ -132,41 +132,52 @@
       valid: {}
     }),
     created () {
-      let primary = this.$api.path.primary('')
-      this.basicItems = [
-        {name: '服务说明', value: primary.basic.service.description},
-        {name: '请求方法', value: primary.basic.method},
-        {name: '请求地址', value: primary.basic.path}
-      ]
-
-      this.breads.push({text: primary.basic.service.serviceName})
-      this.breads.push({strong: primary.basic.description})
-
-      let pathArgs = []
-      let headerArgs = []
-      let queryArgs = []
-
-      primary.parameters.forEach(function (p) {
-        if (p.in === 'query') {
-          pathArgs.push(p)
-        } else if (p.in === 'header') {
-          headerArgs.push(p)
-        } else if (p.in === 'path') {
-          queryArgs.push(p)
-        }
+      debugger
+      // let type = this.$router.query['type']
+      let primaryId = this.$router.currentRoute.query['primaryId']
+      this.$http.get('/path/action/primary', {
+        params: {primaryId: primaryId}
+      }).then((resp) => {
+        this.formatPrimary(resp.data)
       })
+    },
+    methods: {
+      formatPrimary: function (primary) {
+        this.basicItems = [
+          {name: '服务说明', value: primary.basic.service.description},
+          {name: '请求方法', value: primary.basic.method},
+          {name: '请求地址', value: primary.basic.path}
+        ]
 
-      this.requestArg = {
-        paths: pathArgs,
-        headers: headerArgs,
-        querys: queryArgs,
-        body: JSON.parse(primary.scheme.req)
-      }
-      this.responseArg = {headers: [], body: JSON.parse(primary.scheme.resp)}
-      this.valid = {
-        type: primary.valid.scriptType,
-        script: primary.valid.script,
-        results: primary.valid.results
+        this.breads.push({text: primary.basic.service.serviceName})
+        this.breads.push({strong: primary.basic.description})
+
+        let pathArgs = []
+        let headerArgs = []
+        let queryArgs = []
+
+        primary.parameters.forEach(function (p) {
+          if (p.in === 'query') {
+            pathArgs.push(p)
+          } else if (p.in === 'header') {
+            headerArgs.push(p)
+          } else if (p.in === 'path') {
+            queryArgs.push(p)
+          }
+        })
+
+        this.requestArg = {
+          paths: pathArgs,
+          headers: headerArgs,
+          querys: queryArgs,
+          body: JSON.parse(primary.scheme.req)
+        }
+        this.responseArg = {headers: [], body: JSON.parse(primary.scheme.resp)}
+        this.valid = {
+          type: primary.valid.scriptType,
+          script: primary.valid.script,
+          results: primary.valid.results
+        }
       }
     }
   }

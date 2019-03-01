@@ -17,15 +17,17 @@
                             :headers="headers"
                             :items="serviceItems"
                             item-key="name"
+                            hide-actions
                     >
                         <template slot="items" slot-scope="props">
-                            <tr @click="props.expanded = !props.expanded">
+                            <tr>
                                 <td class="text-xs-left">{{ props.item.serviceName }}</td>
                                 <td class="text-xs-left">{{ props.item.description }}</td>
                                 <td class="text-xs-left">{{ props.item.pathCount }}</td>
                                 <td class="text-xs-left">
                                     <v-tooltip bottom>
-                                        <v-btn flat icon color="primary" slot="activator" v-on:click="goPath(props.item)">
+                                        <v-btn flat icon color="primary" slot="activator"
+                                               v-on:click="goPath(props.item)">
                                             <v-icon>list</v-icon>
                                         </v-btn>
                                         <span>接口列表</span>
@@ -46,7 +48,7 @@
 </template>
 
 <script>
-  import breadcrumb from '@/components/breadcrumb'
+  import breadcrumb from '@/components/common/breadcrumb'
 
   export default {
     name: 'servicePanel',
@@ -68,7 +70,9 @@
       serviceItems: []
     }),
     created () {
-      this.serviceItems = this.$api.service.list()
+      this.$http.get('/service/action/list').then((resp) => {
+        this.serviceItems = resp.data
+      })
     },
     methods: {
       goPath: function (item) {

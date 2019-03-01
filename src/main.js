@@ -4,16 +4,19 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
-// import api from './api'
 import 'vuetify/dist/vuetify.min.css'
 import vuetify from 'vuetify'
 import {api, http} from './api'
+import toast from '@/components/toast.js'
 
 /**
  * 插件
  */
 Vue.use(vuetify)
+Vue.use(toast)
+
 Vue.prototype.$api = api
+Vue.prototype.$http = http
 
 /* eslint-disable no-new */
 new Vue({

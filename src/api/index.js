@@ -1,10 +1,29 @@
 import axios from 'axios'
+import store from '@/store'
+import Vue from 'vue'
 
 const http = axios.create()
 
-http.defaults.baseURL = 'http://api.com'
+http.defaults.baseURL = 'http://localhost:18080'
 http.defaults.timeout = 5000
-// api.defaults.headers.post[''] = ''
+
+http.interceptors.request.use((config) => {
+  /**
+   * 添加默认工作空间标识
+   * @type {null}
+   */
+  let nws = store.state.currentWorkspace
+  if (nws) {
+    config.headers['Workspace'] = nws.key
+  }
+  return config
+})
+
+http.interceptors.response.use(response => {
+  return response
+}, error => {
+  Vue.prototype.$toast.error(error.message)
+})
 
 const api = {
   workspace: {
