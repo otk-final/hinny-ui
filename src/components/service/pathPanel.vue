@@ -119,9 +119,8 @@
         return this.search(this.searchChecked, this.searchText)
       },
       http: function (item) {
-        debugger
         this.$router.push({
-          name: 'httpExecute',
+          name: 'httpCtrl',
           query: {type: 'execute', primaryId: item.primary_id}
         })
       }

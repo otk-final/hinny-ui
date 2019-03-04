@@ -12,16 +12,16 @@ const drawerMenu = [
     group: 'project',
     items: [
       {title: '服务列表', path: '/service/action/list'},
-      {title: '接口查询', path: '/project/path/list', badge: 'new'}
+      {title: '接口查询', path: '/path/action/list', badge: 'new'}
     ]
   },
   {
     title: '案例计划',
     icon: 'edit',
-    path: '/testcase',
+    path: '/case',
     items: [
-      {title: '接口策略', path: '/testcase/http/s/deq'},
-      {title: '流程策略', path: '/testcase/tagRule', badge: 'new'}
+      {title: '执行记录', path: '/case/action/log-list'},
+      {title: '案例编排', path: '/case/action/group-list', badge: 'new'}
     ]
   },
   {title: '测试报告', path: '/mock', icon: 'build', badge: 'feature'}

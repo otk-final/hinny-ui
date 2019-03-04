@@ -3,7 +3,7 @@
             v-model="selected"
             :headers="headers"
             :items="items"
-            item-key="key"
+            item-key="name"
             hide-actions
             select-all
             class="elevation-1"
@@ -14,9 +14,9 @@
                         v-model="props.selected"
                         primary
                         hide-details
-                ></v-checkbox>
+                >
+                </v-checkbox>
             </td>
-
             <td>
                 <v-edit-dialog
                         :return-value="props.item.name"
@@ -54,11 +54,11 @@
   export default {
     name: 'lineEditTable',
     props: {
-      items: Array
+      items: Array,
+      selected: Array
     },
     data () {
       return {
-        selected: [],
         headers: [{
           text: '键',
           sortable: false,
@@ -73,6 +73,11 @@
           value: 'description'
         }]
       }
+    },
+    created () {
+      this.selected = this.items.filter(function (item) {
+        return item.required
+      })
     }
   }
 </script>

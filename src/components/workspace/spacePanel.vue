@@ -20,7 +20,7 @@
                             hide-actions
                     >
                         <template slot="items" slot-scope="props">
-                            <tr @click="props.expanded = !props.expanded">
+                            <tr>
                                 <td class="text-xs-left">{{ props.item.name }}</td>
                                 <td class="text-xs-left">{{ props.item.key}}</td>
                                 <td class="text-xs-left">{{ props.item.host}}</td>
@@ -47,11 +47,6 @@
                                     </v-tooltip>
                                 </td>
                             </tr>
-                        </template>
-                        <template slot="expand" slot-scope="props">
-                            <v-card flat>
-                                <v-card-text>Peek-a-boo!</v-card-text>
-                            </v-card>
                         </template>
                     </v-data-table>
                 </v-card>
@@ -103,11 +98,12 @@
 
 <script>
 
+  import aceEditor from '@/components/common/aceEditor'
   import breadcrumb from '@/components/common/breadcrumb'
 
   export default {
     name: 'spacePanel',
-    components: {breadcrumb},
+    components: {breadcrumb, aceEditor},
     data: () => ({
       breads: [],
       headers: [

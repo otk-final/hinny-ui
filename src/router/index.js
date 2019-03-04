@@ -20,7 +20,10 @@ import Router from 'vue-router'
 import pathPanel from '@/components/service/pathPanel'
 import servicePanel from '@/components/service/servicePanel'
 import spacePanel from '@/components/workspace/spacePanel'
-import httpExecute from '@/components/service/httpExecute'
+import caseLogPanel from '@/components/case/caseLogPanel'
+import caseGroupPanel from '@/components/case/caseGroupPanel'
+
+import httpCtrl from '@/components/callable/httpCtrl'
 
 Vue.use(Router)
 export default new Router({
@@ -29,7 +32,7 @@ export default new Router({
     name: 'servicePanel',
     components: {default: servicePanel}
   }, {
-    path: '/project/path/list',
+    path: '/path/action/list',
     name: 'pathPanel',
     components: {default: pathPanel}
   }, {
@@ -37,8 +40,16 @@ export default new Router({
     name: 'spacePanel',
     components: {default: spacePanel}
   }, {
-    path: '/testcase/http',
-    name: 'httpExecute',
-    components: {default: httpExecute}
+    path: '/case/action/log-list',
+    name: 'spacePanel',
+    components: {default: caseLogPanel}
+  }, {
+    path: '/case/action/group-list',
+    name: 'spacePanel',
+    components: {default: caseGroupPanel}
+  }, {
+    path: '/callable/http',
+    name: 'httpCtrl',
+    components: {default: httpCtrl}
   }]
 })
