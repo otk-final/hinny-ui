@@ -17,7 +17,7 @@
                     </v-flex>
                     <v-flex xs12 md8>
                         <v-text-field
-                                label="搜索接口"
+                                label="搜索记录"
                                 v-model="searchText"
                                 :value="searchText"
                                 hint="可以通过[模块名称],[相关分组/标签],[案例名称]进行查询"
@@ -55,13 +55,22 @@
                                         部分通过
                                     </v-btn>
                                 </td>
+                                <td class="text-xs-left">{{ props.item.createTime }}</td>
                                 <td class="text-xs-left">
+
                                     <v-tooltip bottom>
                                         <v-btn flat icon color="primary" slot="activator"
-                                               v-on:click="goPath(props.item)">
-                                            <v-icon>list</v-icon>
+                                               v-on:click="goTryAgain(props.item)">
+                                            <v-icon>refresh</v-icon>
                                         </v-btn>
-                                        <span>接口列表</span>
+                                        <span>重新执行</span>
+                                    </v-tooltip>
+                                    <v-tooltip bottom>
+                                        <v-btn flat icon color="primary" slot="activator"
+                                               v-on:click="goInfo(props.item)">
+                                            <v-icon>info</v-icon>
+                                        </v-btn>
+                                        <span>详情</span>
                                     </v-tooltip>
                                 </td>
                             </tr>
@@ -71,6 +80,9 @@
                                 <v-card-text style="text-align: left">
                                     <h3 style="text-align: left">CURL:</h3>
                                     {{props.item.curl}}
+                                    <br/><br/>
+                                    <h3 style="text-align: left">备注:</h3>
+                                    {{props.item.description}}
                                 </v-card-text>
                             </v-card>
                         </template>
@@ -85,6 +97,7 @@
   import breadcrumb from '@/components/common/breadcrumb'
 
   export default {
+    name: 'caseLogPanel',
     components: {
       breadcrumb
     },
@@ -101,15 +114,36 @@
         {text: '分组/标签', value: 'groupName'},
         {text: '案例名称', value: 'caseName'},
         {text: '状态', value: 'status'},
+        {text: '创建时间', value: 'createTime'},
         {text: '操作', value: 'iron'}
       ],
       items: [
         {moduleName: '用户行为模块', groupName: '点赞', caseName: '用户点赞操作', status: 'success'},
-        {moduleName: '用户行为模块', groupName: '关注', caseName: '用户关注自己', status: 'fail', curl: 'curl -X GET "http://api-dev.yryz.com/gateway/lovelorn/v1.1/pb/activity-info/4324234" -H "accept: */*"'},
-        {moduleName: '用户行为模块', groupName: '关注', caseName: '用户关注不存在的用户', status: 'part'}
+        {
+          moduleName: '用户行为模块',
+          groupName: '关注',
+          caseName: '用户关注自己',
+          status: 'fail',
+          curl: 'curl -X GET "http://api-dev.yryz.com/gateway/lovelorn/v1.1/pb/activity-info/4324234" -H "accept: */*"',
+          description: 'Vue.js - The Progressive JavaScript Framework... 你可以像绑定普通属性一样在模板中绑定计算属性。Vue 知道 vm.reversedMessage 依赖于 vm.message,因此当 vm.mess...'
+        },
+        {
+          moduleName: '用户行为模块',
+          groupName: '关注',
+          caseName: '用户关注不存在的用户',
+          status: 'part',
+          createTime: '2019-03-04 19:32:11'
+        }
       ]
     }),
-    name: 'caseLogPanel'
+    methods: {
+      goInfo: function (item) {
+        this.$router.push({name: 'pathPanel', query: {findType: 'service', value: item.serviceName}})
+      },
+      goTryAgain: function (item) {
+        this.$router.push({name: 'pathPanel', query: {findType: 'service', value: item.serviceName}})
+      }
+    }
   }
 </script>
 

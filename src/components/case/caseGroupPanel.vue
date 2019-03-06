@@ -1,5 +1,6 @@
 <template>
-
+    <v-container grid-list-xl fluid>
+    </v-container>
 </template>
 
 <script>

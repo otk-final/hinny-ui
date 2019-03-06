@@ -6,7 +6,7 @@ import router from './router'
 import store from './store'
 import 'vuetify/dist/vuetify.min.css'
 import vuetify from 'vuetify'
-import {api, http} from './api'
+import http from './api'
 import toast from '@/components/toast.js'
 
 /**
@@ -15,13 +15,11 @@ import toast from '@/components/toast.js'
 Vue.use(vuetify)
 Vue.use(toast)
 
-Vue.prototype.$api = api
 Vue.prototype.$http = http
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  api,
   http,
   router,
   store,

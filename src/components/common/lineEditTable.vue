@@ -1,19 +1,20 @@
 <template>
     <v-data-table
-            v-model="selected"
+            v-model="table"
             :headers="headers"
             :items="items"
             item-key="name"
             hide-actions
-            select-all
             class="elevation-1"
     >
         <template slot="items" slot-scope="props">
             <td style="width: 10%">
                 <v-checkbox
-                        v-model="props.selected"
+                        v-model="selected"
                         primary
                         hide-details
+                        v-on:change="change"
+                        :value="props.item.name"
                 >
                 </v-checkbox>
             </td>
@@ -55,11 +56,12 @@
     name: 'lineEditTable',
     props: {
       items: Array,
-      selected: Array
+      table: Array
     },
     data () {
       return {
-        headers: [{
+        selected: [],
+        headers: [{}, {
           text: '键',
           sortable: false,
           value: 'name'
@@ -75,9 +77,24 @@
       }
     },
     created () {
-      this.selected = this.items.filter(function (item) {
-        return item.required
+      let requiredArray = []
+      let me = this
+      me.items.forEach(function (item) {
+        if (item.required) requiredArray.push(item.name)
       })
+      this.selected = requiredArray
+    },
+    computed: {},
+    methods: {
+      getValues: function () {
+        let me = this
+        return me.items.filter(function (item) {
+          return me.selected.indexOf(item.name) !== -1
+        })
+      },
+      change: function (selected) {
+        this.selected = selected
+      }
     }
   }
 </script>

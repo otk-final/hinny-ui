@@ -34,18 +34,18 @@
                     <v-tab>报文体</v-tab>
                     <v-tab>验证脚本</v-tab>
                     <v-tab-item>
-                        <line-edit-table :items="requestArg.headers"></line-edit-table>
+                        <line-edit-table ref="header" :items="requestArg.header"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
-                        <line-edit-table :items="requestArg.paths"></line-edit-table>
+                        <line-edit-table ref="uri" :items="requestArg.uri"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
-                        <line-edit-table :items="requestArg.querys"></line-edit-table>
+                        <line-edit-table ref="query" :items="requestArg.query"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
                         <vue-json-editor :show-btns="false"
                                          :modes="modes"
-                                         :value="requestArg.body">
+                                         :value="requestBody">
                         </vue-json-editor>
                     </v-tab-item>
                     <v-tab-item>
@@ -63,12 +63,12 @@
                     <v-tab>响应头</v-tab>
                     <v-tab>响应报文</v-tab>
                     <v-tab-item>
-                        <line-edit-table :items="responseArg.headers"></line-edit-table>
+                        <line-edit-table :items="responseArg.header"></line-edit-table>
                     </v-tab-item>
                     <v-tab-item>
                         <vue-json-editor :show-btns="false"
                                          :modes="modes"
-                                         :value="responseArg.body">
+                                         :value="responseBody">
                         </vue-json-editor>
                     </v-tab-item>
                 </v-tabs>
@@ -106,6 +106,7 @@
                 </v-card-title>
                 <v-card-text>
                     <v-text-field
+                            v-model="input.name"
                             label="案例名称"
                             value=""
                             hint="请输入当前接口测试案例名称"
@@ -113,18 +114,19 @@
                     <v-layout>
                         <v-flex xs12 md6>
                             <v-combobox
-                                    v-model="select"
-                                    :items="items"
+                                    v-model="input.module"
                                     chips
+                                    :items="moduleItems"
                                     label="功能模块"
                                     hint="请选择或自定义功能模块"
+                                    v-on:change="moduleSelected"
                             ></v-combobox>
                         </v-flex>
                         &nbsp;&nbsp;
                         <v-flex xs12 md6>
                             <v-combobox
-                                    v-model="select"
-                                    :items="items"
+                                    v-model="input.group"
+                                    :items="groupItems"
                                     chips
                                     label="分组"
                                     hint="请选择或自定义分组"
@@ -133,6 +135,7 @@
                     </v-layout>
                     <v-layout>
                         <v-textarea
+                                v-model="input.description"
                                 label="备注"
                                 value=""
                                 hint="当前测试案例相关说明"
@@ -178,12 +181,24 @@
       breads: [{text: '项目管理', href: ''}, {text: '接口查询', href: ''}],
       modes: ['code', 'tree', 'text', 'view'],
       basicItems: [],
+
+      primary_id: '',
+
       requestArg: {},
+      requestBody: '',
       responseArg: {},
-      schemeReq: {},
-      schemeResp: {},
-      scriptType: 'Javascript',
-      scriptContext: ''
+      responseBody: '',
+
+      scriptType: 'javascript',
+      scriptContext: '',
+      input: {
+        name: '',
+        module: '',
+        group: '',
+        description: ''
+      },
+      moduleGroup: [],
+      groupItems: []
     }),
     created () {
       this.initType = this.$router.currentRoute.query['type']
@@ -193,43 +208,66 @@
       }).then((resp) => {
         this.formatPrimary(resp.data)
       })
+      /**
+       * 加载module-groups
+       */
+      this.$http.get('/case/action/get-module-group').then((resp) => {
+        this.moduleGroup = resp.data
+      })
+    },
+    computed: {
+      moduleItems: function () {
+        let moduleItems = []
+        this.moduleGroup.forEach(function (item) {
+          moduleItems.push(item.module)
+        })
+        return moduleItems
+      }
     },
     methods: {
       formatPrimary: function (primary) {
+        this.primary_id = primary.path['primary_id']
+
         this.basicItems = [
-          {name: '服务说明', value: primary.service.description},
-          {name: '请求方法', value: primary.method},
-          {name: '请求地址', value: primary.path}
+          {name: '服务说明', value: primary.path.service.description},
+          {name: '请求方法', value: primary.path.method},
+          {name: '请求地址', value: primary.path.path}
         ]
 
-        this.breads.push({text: primary.service.serviceName})
-        this.breads.push({strong: primary.description})
-
-        let pathArgs = []
-        let headerArgs = []
-        let queryArgs = []
-
-        primary.parameters.forEach(function (p) {
-          if (p.in === 'query') {
-            queryArgs.push(p)
-          } else if (p.in === 'header') {
-            headerArgs.push(p)
-          } else if (p.in === 'path') {
-            pathArgs.push(p)
-          }
-        })
+        this.breads.push({text: primary.path.service.serviceName})
+        this.breads.push({strong: primary.path.description})
         this.requestArg = {
-          paths: pathArgs,
-          headers: headerArgs,
-          querys: queryArgs,
-          body: JSON.parse('{}')
+          uri: primary.request.uri,
+          header: primary.request.header,
+          query: primary.request.query
         }
-        this.responseArg = {headers: [], body: JSON.parse('{}')}
+        this.requestBody = JSON.parse(primary.request.body)
+        this.responseArg = {header: []}
+        this.responseBody = JSON.parse(primary.response.body)
       },
       submit: function () {
-        console.info(this.requestArg)
-        console.info(this.valid)
-        console.info(this.responseArg)
+        /*
+         *  获取被选中的值
+         */
+        let me = this
+        let data = {
+          primary_id: me.primary_id,
+          request: {
+            header: me.$refs.header.getValues(),
+            uri: me.$refs.uri.getValues(),
+            query: me.$refs.query.getValues(),
+            body: me.requestBody
+          },
+          valid: {
+            script_type: 'javascript',
+            script: me.scriptContext
+          }
+        }
+        debugger
+        me.$http.post('/case/action/execute', data).then((resp) => {
+
+        })
+        debugger
       },
       openArchiveDialog: function () {
         this.archiveDialog = true
@@ -239,6 +277,19 @@
       },
       closeArchiveDialog: function () {
         this.archiveDialog = false
+      },
+      moduleSelected: function (val) {
+        /**
+         * 联动
+         */
+        let me = this
+        me.groupItems = []
+        me.moduleGroup.forEach(function (item) {
+          if (item.module === val) {
+            me.input.group = ''
+            me.groupItems = item.groups
+          }
+        })
       }
     }
   }
