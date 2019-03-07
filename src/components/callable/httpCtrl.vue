@@ -45,7 +45,7 @@
                     <v-tab-item>
                         <vue-json-editor :show-btns="false"
                                          :modes="modes"
-                                         :value="requestBody">
+                                         :value="requestBody" ref="reqJsonEditor">
                         </vue-json-editor>
                     </v-tab-item>
                     <v-tab-item>
@@ -60,16 +60,17 @@
             </v-flex>
             <v-flex xs12>
                 <v-tabs class="elevation-1">
-                    <v-tab>响应头</v-tab>
                     <v-tab>响应报文</v-tab>
-                    <v-tab-item>
-                        <line-edit-table :items="responseArg.header"></line-edit-table>
-                    </v-tab-item>
-                    <v-tab-item>
+                    <v-tab>响应头</v-tab>
+                    <v-tab-item active-class>
                         <vue-json-editor :show-btns="false"
                                          :modes="modes"
-                                         :value="responseBody">
+                                         :value="responseBody"
+                                         ref="respJsonEditor">
                         </vue-json-editor>
+                    </v-tab-item>
+                    <v-tab-item>
+                        <line-edit-table :items="responseArg.header"></line-edit-table>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -241,6 +242,7 @@
           header: primary.request.header,
           query: primary.request.query
         }
+
         this.requestBody = JSON.parse(primary.request.body)
         this.responseArg = {header: []}
         this.responseBody = JSON.parse(primary.response.body)
@@ -256,7 +258,7 @@
             header: me.$refs.header.getValues(),
             uri: me.$refs.uri.getValues(),
             query: me.$refs.query.getValues(),
-            body: me.requestBody
+            body: JSON.stringify(me.$refs.reqJsonEditor.editor.get())
           },
           valid: {
             script_type: 'javascript',
@@ -265,9 +267,11 @@
         }
         debugger
         me.$http.post('/case/action/execute', data).then((resp) => {
-
+          /**
+           * 渲染响应
+           */
+          me.responseBody = JSON.parse(resp.data.response.body)
         })
-        debugger
       },
       openArchiveDialog: function () {
         this.archiveDialog = true

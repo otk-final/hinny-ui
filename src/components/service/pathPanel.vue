@@ -81,7 +81,7 @@
     data: () => ({
       breads: [{text: '项目管理', href: ''}, {text: '接口查询', href: ''}],
       searchOptions: [{text: '服务名', value: 'service'}, {text: '请求路径', value: 'path'}],
-      searchChecked: '',
+      searchChecked: 'path',
       searchText: '*',
       headers: [
         {

@@ -13,7 +13,6 @@
                         v-model="selected"
                         primary
                         hide-details
-                        v-on:change="change"
                         :value="props.item.name"
                 >
                 </v-checkbox>
@@ -33,9 +32,11 @@
             </td>
 
             <td style="width: 50%">
+
                 <v-edit-dialog
                         :return-value="props.item.value"
                         lazy
+                        v-if="props.item.type !== 'array' && props.item.enum === undefined"
                 >{{ props.item.value }}
                     <v-text-field
                             slot="input"
@@ -44,8 +45,20 @@
                             single-line
                     ></v-text-field>
                 </v-edit-dialog>
-            </td>
+                <v-combobox
+                        v-if="props.item.type === 'array'"
+                        v-model="props.item.multi"
+                        multiple
+                        chips
+                ></v-combobox>
 
+                <v-combobox
+                        v-if="props.item.type !== 'array' && props.item.enum != null"
+                        v-model="props.item.value"
+                        :items="props.item.enum"
+                ></v-combobox>
+
+            </td>
             <td style="text-align: left">{{props.item.description}}</td>
         </template>
     </v-data-table>
@@ -61,7 +74,11 @@
     data () {
       return {
         selected: [],
-        headers: [{}, {
+        headers: [{
+          text: '',
+          sortable: false,
+          value: 'name'
+        }, {
           text: '键',
           sortable: false,
           value: 'name'
@@ -77,23 +94,36 @@
       }
     },
     created () {
-      let requiredArray = []
-      let me = this
-      me.items.forEach(function (item) {
-        if (item.required) requiredArray.push(item.name)
-      })
-      this.selected = requiredArray
     },
-    computed: {},
+    watch: {
+      items: function (newVal, oldVal) {
+        let requiredArray = []
+        let me = this
+        console.info(me.items)
+        me.items.forEach(function (item) {
+          if (item.required) requiredArray.push(item.name)
+        })
+        this.selected = requiredArray
+      }
+    },
     methods: {
       getValues: function () {
         let me = this
-        return me.items.filter(function (item) {
-          return me.selected.indexOf(item.name) !== -1
-        })
-      },
-      change: function (selected) {
-        this.selected = selected
+        let selectArray = []
+        for (let i = 0; i < me.items.length; i++) {
+          let item = me.items[i]
+          if (me.selected.indexOf(item.name) === -1) {
+            continue
+          }
+          let val = {type: item.type, name: item.name}
+          if (item.type === 'array') {
+            val.value = item.multi
+          } else {
+            val.value = (item.value === undefined ? '' : item.value)
+          }
+          selectArray.push(val)
+        }
+        return selectArray
       }
     }
   }
