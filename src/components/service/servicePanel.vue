@@ -6,17 +6,10 @@
             </v-flex>
             <v-flex xs12>
                 <v-card>
-                    <v-toolbar flat color="white">
-                        <v-toolbar-title>服务列表</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                        <v-btn color="primary" dark @click="expand = !expand">
-                            创建
-                        </v-btn>
-                    </v-toolbar>
                     <v-data-table
                             :headers="headers"
                             :items="serviceItems"
-                            item-key="name"
+                            item-key="serviceName"
                             hide-actions
                     >
                         <template slot="items" slot-scope="props">

@@ -22,9 +22,9 @@
                         <template slot="items" slot-scope="props">
                             <tr>
                                 <td class="text-xs-left">{{ props.item.application}}</td>
-                                <td class="text-xs-left">{{ props.item.ws_name }}</td>
-                                <td class="text-xs-left">{{ props.item.ws_key}}</td>
-                                <td class="text-xs-left">{{ props.item.api_url}}</td>
+                                <td class="text-xs-left">{{ props.item.wsName }}</td>
+                                <td class="text-xs-left">{{ props.item.wsKey}}</td>
+                                <td class="text-xs-left">{{ props.item.apiUrl}}</td>
                                 <td class="text-xs-left">{{ props.item.statusDesc }}</td>
                                 <td class="text-xs-left">
                                     <v-tooltip bottom>
@@ -70,23 +70,21 @@
                         <v-flex xs12 md6>
                             <v-text-field
                                     label="空间名称"
-                                    type="spaceName"
-                                    v-model="input.ws_name"
+                                    v-model="input.wsName"
                             ></v-text-field>
                         </v-flex>
                         &nbsp;&nbsp;
                         <v-flex xs12 md6>
                             <v-text-field
                                     label="空间唯一标识"
-                                    type="spaceKey"
                                     hint="不可重复，全局唯一"
-                                    v-model="input.ws_key"
+                                    v-model="input.wsKey"
                             ></v-text-field>
                         </v-flex>
                     </v-layout>
                     <v-text-field
                             label="请求地址"
-                            v-model="input.api_url"
+                            v-model="input.apiUrl"
                             hint="请输入请求域名 或 主机:端口"
                     ></v-text-field>
                 </v-card-text>
@@ -116,10 +114,10 @@
         {
           text: '空间名称',
           sortable: false,
-          value: 'ws_name'
+          value: 'wsName'
         },
-        {text: '命名空间', value: 'ws_key'},
-        {text: '网关地址', value: 'api_url'},
+        {text: '命名空间', value: 'wsKey'},
+        {text: '网关地址', value: 'apiUrl'},
         {text: '连接状态', value: 'status'},
         {text: '操作', value: 'iron'}
       ],
@@ -127,9 +125,9 @@
       dialog: false,
       input: {
         application: '',
-        ws_name: '',
-        ws_key: '',
-        api_url: ''
+        wsName: '',
+        wsKey: '',
+        apiUrl: ''
       }
     }),
     created () {
@@ -156,15 +154,17 @@
         })
       },
       remove: function (nws) {
-        this.$http.delete('/workspace/' + nws.id).then((resp) => {
+        debugger
+        this.$http.delete('/workspace/' + nws.kid).then((resp) => {
           this.$toast.success('删除成功')
+          this.load()
         })
       },
       change: function (nws) {
         let afterArray = []
         for (let i = 0; i < this.spaceItems.length; i++) {
           let item = this.spaceItems[i]
-          if (item['ws_key'] === nws['ws_key']) {
+          if (item.kid === nws.kid) {
             item['statusDesc'] = '已连接'
             item.status = 1
           } else {

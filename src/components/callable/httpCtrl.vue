@@ -106,39 +106,19 @@
                     <span class="headline">归档执行记录</span>
                 </v-card-title>
                 <v-card-text>
-                    <v-text-field
-                            v-model="input.name"
-                            label="案例名称"
-                            value=""
-                            hint="请输入当前接口测试案例名称"
-                    ></v-text-field>
+                    <module-link-options ref="moduleLinkOptions" :caseType="input.caseType"
+                                         :module="input.module"></module-link-options>
                     <v-layout>
-                        <v-flex xs12 md6>
-                            <v-combobox
-                                    v-model="input.module"
-                                    chips
-                                    :items="moduleItems"
-                                    label="功能模块"
-                                    hint="请选择或自定义功能模块"
-                                    v-on:change="moduleSelected"
-                            ></v-combobox>
-                        </v-flex>
-                        &nbsp;&nbsp;
-                        <v-flex xs12 md6>
-                            <v-combobox
-                                    v-model="input.group"
-                                    :items="groupItems"
-                                    chips
-                                    label="分组"
-                                    hint="请选择或自定义分组"
-                            ></v-combobox>
-                        </v-flex>
+                        <v-text-field
+                                v-model="input.caseName"
+                                label="案例名称"
+                                hint="请输入当前接口测试案例名称"
+                        ></v-text-field>
                     </v-layout>
                     <v-layout>
                         <v-textarea
                                 v-model="input.description"
                                 label="备注"
-                                value=""
                                 hint="当前测试案例相关说明"
                         ></v-textarea>
                     </v-layout>
@@ -158,6 +138,7 @@
   import lineEditTable from '@/components/common/lineEditTable'
   import vueJsonEditor from 'vue-json-editor'
   import aceEditor from '@/components/common/aceEditor'
+  import moduleLinkOptions from '@/components/common/moduleLinkOptions'
 
   import 'brace/mode/javascript'
   import 'brace/theme/chrome'
@@ -165,6 +146,7 @@
   export default {
     name: 'httpCtrl',
     components: {
+      moduleLinkOptions,
       aceEditor,
       vueJsonEditor,
       lineEditTable,
@@ -183,7 +165,8 @@
       modes: ['code', 'tree', 'text', 'view'],
       basicItems: [],
 
-      primary_id: '',
+      primaryId: '',
+      logKid: '',
 
       requestArg: {},
       requestBody: '',
@@ -192,42 +175,43 @@
 
       scriptType: 'javascript',
       scriptContext: '',
+
       input: {
-        name: '',
+        application: '',
+        caseType: '',
         module: '',
-        group: '',
+        caseName: '',
         description: ''
-      },
-      moduleGroup: [],
-      groupItems: []
+      }
     }),
     created () {
       this.initType = this.$router.currentRoute.query['type']
-      let primaryId = this.$router.currentRoute.query['primaryId']
-      this.$http.get('/path/action/primary', {
-        params: {primaryId: primaryId}
-      }).then((resp) => {
-        this.formatPrimary(resp.data)
-      })
-      /**
-       * 加载module-groups
-       */
-      this.$http.get('/case/action/get-module-group').then((resp) => {
-        this.moduleGroup = resp.data
-      })
-    },
-    computed: {
-      moduleItems: function () {
-        let moduleItems = []
-        this.moduleGroup.forEach(function (item) {
-          moduleItems.push(item.module)
-        })
-        return moduleItems
+
+      if (this.initType === 'execute') {
+        let primaryId = this.$router.currentRoute.query['primaryId']
+        this.loadExecute(primaryId)
+      } else if (this.initType === 'log') {
+        let logKid = this.$router.currentRoute.query['logKid']
+        this.loadLog(logKid)
       }
     },
+    computed: {
+    },
     methods: {
+      loadExecute: function (primaryId) {
+        this.$http.get('/path/action/primary', {
+          params: {primaryId: primaryId}
+        }).then((resp) => {
+          this.formatPrimary(resp.data)
+        })
+      },
+      loadLog: function (logKid) {
+        this.$http.get('/case/' + logKid).then((resp) => {
+          this.formatPrimary(resp.data)
+        })
+      },
       formatPrimary: function (primary) {
-        this.primary_id = primary.path['primary_id']
+        this.primaryId = primary.path['primaryId']
 
         this.basicItems = [
           {name: '服务说明', value: primary.path.service.description},
@@ -253,7 +237,7 @@
          */
         let me = this
         let data = {
-          primary_id: me.primary_id,
+          primaryId: me.primaryId,
           request: {
             header: me.$refs.header.getValues(),
             uri: me.$refs.uri.getValues(),
@@ -261,39 +245,39 @@
             body: JSON.stringify(me.$refs.reqJsonEditor.editor.get())
           },
           valid: {
-            script_type: 'javascript',
+            scriptType: 'javascript',
             script: me.scriptContext
           }
         }
-        debugger
         me.$http.post('/case/action/execute', data).then((resp) => {
+          this.$toast.success('执行完成')
           /**
            * 渲染响应
            */
+          me.logKid = resp.data.logKid
           me.responseBody = JSON.parse(resp.data.response.body)
         })
       },
       openArchiveDialog: function () {
+        if (!this.logKid || this.logKid === '') {
+          this.$toast.error('请先执行，再进行存档')
+          return
+        }
         this.archiveDialog = true
       },
       saveArchiveDialog: function () {
+        let me = this
+        me.input['logKid'] = me.logKid
+        me.input['caseType'] = me.$refs['moduleLinkOptions'].getCaseType()
+        me.input['module'] = me.$refs['moduleLinkOptions'].getModule()
+
+        me.$http.post('/case/action/save', me.input).then((resp) => {
+          this.$toast.success('存档成功')
+        })
         this.archiveDialog = false
       },
       closeArchiveDialog: function () {
         this.archiveDialog = false
-      },
-      moduleSelected: function (val) {
-        /**
-         * 联动
-         */
-        let me = this
-        me.groupItems = []
-        me.moduleGroup.forEach(function (item) {
-          if (item.module === val) {
-            me.input.group = ''
-            me.groupItems = item.groups
-          }
-        })
       }
     }
   }

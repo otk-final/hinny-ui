@@ -121,7 +121,7 @@
       http: function (item) {
         this.$router.push({
           name: 'httpCtrl',
-          query: {type: 'execute', primaryId: item.primary_id}
+          query: {type: 'execute', primaryId: item.primaryId}
         })
       }
     }

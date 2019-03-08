@@ -20,7 +20,7 @@ import Router from 'vue-router'
 import pathPanel from '@/components/service/pathPanel'
 import servicePanel from '@/components/service/servicePanel'
 import spacePanel from '@/components/workspace/spacePanel'
-import caseLogPanel from '@/components/case/caseLogPanel'
+import caseTplPanel from '@/components/case/caseTplPanel'
 import caseGroupPanel from '@/components/case/caseGroupPanel'
 
 import httpCtrl from '@/components/callable/httpCtrl'
@@ -41,8 +41,8 @@ export default new Router({
     components: {default: spacePanel}
   }, {
     path: '/case/action/log-list',
-    name: 'spacePanel',
-    components: {default: caseLogPanel}
+    name: 'caseTplPanel',
+    components: {default: caseTplPanel}
   }, {
     path: '/case/action/group-list',
     name: 'spacePanel',

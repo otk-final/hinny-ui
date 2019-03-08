@@ -15,7 +15,8 @@ http.interceptors.request.use((config) => {
    */
   let nws = store.state.currentWorkspace
   if (nws) {
-    config.headers['workspace'] = nws['ws_key']
+    config.headers['workspace'] = nws['kid']
+    config.headers['application'] = nws['application']
   }
 
   if (config.method === 'post') {

@@ -99,7 +99,6 @@
       items: function (newVal, oldVal) {
         let requiredArray = []
         let me = this
-        console.info(me.items)
         me.items.forEach(function (item) {
           if (item.required) requiredArray.push(item.name)
         })
