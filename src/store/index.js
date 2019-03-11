@@ -9,7 +9,7 @@ const drawerMenu = [
   {
     title: '项目管理',
     icon: 'code',
-    group: 'project',
+    group: '/project',
     items: [
       {title: '服务列表', path: '/service/action/list'},
       {title: '接口查询', path: '/path/action/list', badge: 'new'}

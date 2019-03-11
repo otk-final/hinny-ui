@@ -56,7 +56,14 @@
             <v-btn mt-0 color="primary" v-on:click="submit">执行</v-btn>
             <v-btn mt-0 color="primary" v-on:click="openArchiveDialog">存档</v-btn>
             <v-flex sm12>
-                <h3 style="text-align: left">响应</h3>
+                <h3 style="text-align: left">响应
+                    <v-chip color="green" text-color="white" v-show="responseCode===200">
+                        状态码:{{responseCode}}
+                    </v-chip>
+                    <v-chip color="red" text-color="white" v-show="responseCode!=='' && responseCode!==200">
+                        状态码:{{responseCode}}
+                    </v-chip>
+                </h3>
             </v-flex>
             <v-flex xs12>
                 <v-tabs class="elevation-1">
@@ -70,7 +77,7 @@
                         </vue-json-editor>
                     </v-tab-item>
                     <v-tab-item>
-                        <line-edit-table :items="responseArg.header"></line-edit-table>
+                        <line-edit-table ref="respHeader" :items="responseArg.header"></line-edit-table>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -172,6 +179,7 @@
       requestBody: '',
       responseArg: {},
       responseBody: '',
+      responseCode: '',
 
       scriptType: 'javascript',
       scriptContext: '',
@@ -193,10 +201,11 @@
       } else if (this.initType === 'log') {
         let logKid = this.$router.currentRoute.query['logKid']
         this.loadLog(logKid)
+      } else if (this.initType === 'retry') {
+
       }
     },
-    computed: {
-    },
+    computed: {},
     methods: {
       loadExecute: function (primaryId) {
         this.$http.get('/path/action/primary', {
@@ -207,7 +216,12 @@
       },
       loadLog: function (logKid) {
         this.$http.get('/case/' + logKid).then((resp) => {
+          debugger
           this.formatPrimary(resp.data)
+          /**
+           * 回填响应
+           * */
+          this.formatResponse(resp.data.response, resp.data.result)
         })
       },
       formatPrimary: function (primary) {
@@ -230,6 +244,7 @@
         this.requestBody = JSON.parse(primary.request.body)
         this.responseArg = {header: []}
         this.responseBody = JSON.parse(primary.response.body)
+        this.scriptContext = primary.valid.script
       },
       submit: function () {
         /*
@@ -253,10 +268,29 @@
           this.$toast.success('执行完成')
           /**
            * 渲染响应
+           * 验证结果
            */
           me.logKid = resp.data.logKid
-          me.responseBody = JSON.parse(resp.data.response.body)
+          this.formatResponse(resp.data.response, resp.data.result)
         })
+      },
+      formatResponse: function (response, result) {
+        let me = this
+        if (response.body !== '') {
+          me.responseBody = JSON.parse(response.body)
+        } else {
+          me.responseBody = '{}'
+        }
+        me.responseCode = response.code
+        me.responseArg.header = response.header
+
+        if (result !== null) {
+          this.validFlag = true
+          this.validItems = result
+        } else {
+          this.validItems = []
+        }
+
       },
       openArchiveDialog: function () {
         if (!this.logKid || this.logKid === '') {
@@ -267,10 +301,9 @@
       },
       saveArchiveDialog: function () {
         let me = this
-        me.input['logKid'] = me.logKid
-        me.input['caseType'] = me.$refs['moduleLinkOptions'].getCaseType()
-        me.input['module'] = me.$refs['moduleLinkOptions'].getModule()
-
+        me.input.logKid = me.logKid
+        me.input.caseType = me.$refs['moduleLinkOptions'].getCaseType()
+        me.input.module = me.$refs['moduleLinkOptions'].getModule()
         me.$http.post('/case/action/save', me.input).then((resp) => {
           this.$toast.success('存档成功')
         })

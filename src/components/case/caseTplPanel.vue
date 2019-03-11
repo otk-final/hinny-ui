@@ -33,13 +33,12 @@
                             hide-actions
                     >
                         <template slot="items" slot-scope="props">
-                            <tr @click="props.expanded = !props.expanded">
+                            <tr v-on:click="props.expanded = !props.expanded">
                                 <td class="text-xs-left">{{ props.item.module}}</td>
                                 <td class="text-xs-left">{{ props.item.caseType }}</td>
                                 <td class="text-xs-left">{{ props.item.caseName }}</td>
                                 <td class="text-xs-left">{{ props.item.createTime }}</td>
                                 <td class="text-xs-left">
-
                                     <v-tooltip bottom>
                                         <v-btn flat icon color="primary" slot="activator"
                                                v-on:click="goTryAgain(props.item)">
@@ -47,14 +46,13 @@
                                         </v-btn>
                                         <span>重新执行</span>
                                     </v-tooltip>
-
                                 </td>
                             </tr>
                         </template>
                         <template slot="expand" slot-scope="props">
                             <v-card>
                                 <v-card-text style="text-align: left">
-                                    <case-log-panel></case-log-panel>
+                                    <case-log-panel :caseKid="props.item.kid" ></case-log-panel>
                                 </v-card-text>
                             </v-card>
                         </template>
@@ -111,6 +109,11 @@
           searchText: me.searchText
         }
         this.load(params)
+      },
+      expandedEvent: function (item) {
+        debugger
+        // @click="props.expanded = !props.expanded"
+        this.expanded = !this.expanded
       },
       goInfo: function (item) {
 
