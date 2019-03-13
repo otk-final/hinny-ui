@@ -110,11 +110,6 @@
         }
         this.load(params)
       },
-      expandedEvent: function (item) {
-        debugger
-        // @click="props.expanded = !props.expanded"
-        this.expanded = !this.expanded
-      },
       goInfo: function (item) {
 
       },

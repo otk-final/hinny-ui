@@ -16,11 +16,11 @@
                     <v-data-table
                             :headers="headers"
                             :items="spaceItems"
-                            item-key="name"
+                            item-key="kid"
                             hide-actions
                     >
                         <template slot="items" slot-scope="props">
-                            <tr>
+                            <tr v-on:click="props.expanded = !props.expanded">
                                 <td class="text-xs-left">{{ props.item.application}}</td>
                                 <td class="text-xs-left">{{ props.item.wsName }}</td>
                                 <td class="text-xs-left">{{ props.item.wsKey}}</td>
@@ -50,6 +50,28 @@
                                     </v-tooltip>
                                 </td>
                             </tr>
+                        </template>
+                        <template slot="expand" slot-scope="props">
+                            <v-card>
+                                <v-card-title>
+                                    <h3>默认脚本</h3>
+                                </v-card-title>
+                                <v-card-text style="text-align: left">
+                                    <v-layout>
+                                        <v-flex xs12 md9>
+                                            <ace-editor v-model="props.item.script" :lang="scriptType"
+                                                        :readonly="false"></ace-editor>
+                                        </v-flex>
+                                        <v-flex xs12 md3 style="text-align: left">
+                                            <script-tip></script-tip>
+                                        </v-flex>
+                                    </v-layout>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-btn depressed color="primary" v-on:click="saveScript(props.item)">保存</v-btn>
+                                    <v-spacer></v-spacer>
+                                </v-card-actions>
+                            </v-card>
                         </template>
                     </v-data-table>
                 </v-card>
@@ -91,11 +113,10 @@
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn flat @click.native="closeDialog">关闭</v-btn>
-                    <v-btn depressed color="primary" @click.native="saveDialog">确认</v-btn>
+                    <v-btn depressed color="primary" @click.native="saveDialog()">确认</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
     </v-container>
 </template>
 
@@ -103,10 +124,14 @@
 
   import aceEditor from '@/components/common/aceEditor'
   import breadcrumb from '@/components/common/breadcrumb'
+  import scriptTip from '@/components/common/scriptTip'
+
+  import 'brace/mode/javascript'
+  import 'brace/theme/chrome'
 
   export default {
     name: 'spacePanel',
-    components: {breadcrumb, aceEditor},
+    components: {breadcrumb, aceEditor, scriptTip},
     data: () => ({
       breads: [],
       headers: [
@@ -123,6 +148,8 @@
       ],
       spaceItems: [],
       dialog: false,
+      scriptDialog: false,
+      scriptType: 'javascript',
       input: {
         application: '',
         wsName: '',
@@ -154,7 +181,6 @@
         })
       },
       remove: function (nws) {
-        debugger
         this.$http.delete('/workspace/' + nws.kid).then((resp) => {
           this.$toast.success('删除成功')
           this.load()
@@ -189,6 +215,11 @@
           this.load()
         })
         this.input = {}
+      },
+      saveScript: function (item) {
+        this.$http.post('/workspace/action/update-script', item).then((resp) => {
+          this.$toast.success('保存成功')
+        })
       }
     }
   }

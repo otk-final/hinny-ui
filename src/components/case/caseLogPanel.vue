@@ -19,7 +19,7 @@
                     <v-icon color="primary" v-on:click="goInfo(item)">info</v-icon>
                 </v-flex>
             </v-layout>
-
+            <v-divider></v-divider>
         </v-timeline-item>
     </v-timeline>
 </template>
@@ -40,7 +40,7 @@
       goInfo: function (item) {
         this.$router.push({
           name: 'httpCtrl',
-          query: {type: 'log', logKid: item.kid}
+          query: {type: 'log', logKid: item.kid, caseKid: item.caseKid}
         })
       },
       load: function (caseKid) {
@@ -51,9 +51,6 @@
         this.$http.get('/case/action/get-logs', {params: params}).then((resp) => {
           me.items = resp.data
         })
-        /**
-         * 通知父组件缓存当前数据
-         */
       }
     }
   }

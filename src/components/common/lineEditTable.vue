@@ -47,11 +47,11 @@
                 </v-edit-dialog>
                 <v-combobox
                         v-if="props.item.type === 'array'"
-                        v-model="props.item.multi"
+                        v-model="props.item.value"
+                        :items="props.item.enum"
                         multiple
                         chips
                 ></v-combobox>
-
                 <v-combobox
                         v-if="props.item.type !== 'array' && props.item.enum != null"
                         v-model="props.item.value"
@@ -116,7 +116,7 @@
           }
           let val = {type: item.type, name: item.name}
           if (item.type === 'array') {
-            val.value = item.multi
+            val.value = (item.value === undefined ? [] : item.value)
           } else {
             val.value = (item.value === undefined ? '' : item.value)
           }

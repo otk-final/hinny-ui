@@ -49,7 +49,15 @@
                         </vue-json-editor>
                     </v-tab-item>
                     <v-tab-item>
-                        <ace-editor v-model="scriptContext" :lang="scriptType" :readonly="false"></ace-editor>
+                        <v-layout>
+                            <v-flex xs12 md9>
+                                <ace-editor v-model="scriptContext" :lang="scriptType" :readonly="false"
+                                            height="500px"></ace-editor>
+                            </v-flex>
+                            <v-flex xs12 md3 style="text-align: left">
+                                <script-tip></script-tip>
+                            </v-flex>
+                        </v-layout>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -67,8 +75,10 @@
             </v-flex>
             <v-flex xs12>
                 <v-tabs class="elevation-1">
-                    <v-tab>响应报文</v-tab>
+                    <v-tab active-class>响应报文</v-tab>
                     <v-tab>响应头</v-tab>
+                    <v-tab>Curl</v-tab>
+
                     <v-tab-item active-class>
                         <vue-json-editor :show-btns="false"
                                          :modes="modes"
@@ -78,6 +88,13 @@
                     </v-tab-item>
                     <v-tab-item>
                         <line-edit-table ref="respHeader" :items="responseArg.header"></line-edit-table>
+                    </v-tab-item>
+                    <v-tab-item style="text-align: left">
+                        <v-card>
+                            <v-card-text>
+                                {{curl}}
+                            </v-card-text>
+                        </v-card>
                     </v-tab-item>
                 </v-tabs>
             </v-flex>
@@ -146,6 +163,7 @@
   import vueJsonEditor from 'vue-json-editor'
   import aceEditor from '@/components/common/aceEditor'
   import moduleLinkOptions from '@/components/common/moduleLinkOptions'
+  import scriptTip from '@/components/common/scriptTip'
 
   import 'brace/mode/javascript'
   import 'brace/theme/chrome'
@@ -153,6 +171,7 @@
   export default {
     name: 'httpCtrl',
     components: {
+      scriptTip,
       moduleLinkOptions,
       aceEditor,
       vueJsonEditor,
@@ -173,7 +192,8 @@
       basicItems: [],
 
       primaryId: '',
-      logKid: '',
+      logKid: 0,
+      caseKid: 0,
 
       requestArg: {},
       requestBody: '',
@@ -181,6 +201,7 @@
       responseBody: '',
       responseCode: '',
 
+      curl: '未生成',
       scriptType: 'javascript',
       scriptContext: '',
 
@@ -200,7 +221,8 @@
         this.loadExecute(primaryId)
       } else if (this.initType === 'log') {
         let logKid = this.$router.currentRoute.query['logKid']
-        this.loadLog(logKid)
+        let caseKid = this.$router.currentRoute.query['caseKid']
+        this.loadLog(logKid, caseKid)
       } else if (this.initType === 'retry') {
 
       }
@@ -214,14 +236,14 @@
           this.formatPrimary(resp.data)
         })
       },
-      loadLog: function (logKid) {
+      loadLog: function (logKid, caseKid) {
+        this.caseKid = caseKid
         this.$http.get('/case/' + logKid).then((resp) => {
-          debugger
           this.formatPrimary(resp.data)
           /**
            * 回填响应
            * */
-          this.formatResponse(resp.data.response, resp.data.result)
+          this.formatResponse(resp.data.curl, resp.data.response, resp.data.result)
         })
       },
       formatPrimary: function (primary) {
@@ -252,6 +274,7 @@
          */
         let me = this
         let data = {
+          caseKid: me.caseKid,
           primaryId: me.primaryId,
           request: {
             header: me.$refs.header.getValues(),
@@ -271,26 +294,25 @@
            * 验证结果
            */
           me.logKid = resp.data.logKid
-          this.formatResponse(resp.data.response, resp.data.result)
+          this.formatResponse(resp.data.curl, resp.data.response, resp.data.result)
         })
       },
-      formatResponse: function (response, result) {
+      formatResponse: function (curl, response, result) {
         let me = this
         if (response.body !== '') {
           me.responseBody = JSON.parse(response.body)
         } else {
           me.responseBody = '{}'
         }
+        me.curl = curl
         me.responseCode = response.code
         me.responseArg.header = response.header
-
         if (result !== null) {
           this.validFlag = true
           this.validItems = result
         } else {
           this.validItems = []
         }
-
       },
       openArchiveDialog: function () {
         if (!this.logKid || this.logKid === '') {
