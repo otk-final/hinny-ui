@@ -6,17 +6,17 @@
             <!---->
             <router-view/>
         </v-content>
-        <!--<footers></footers>-->
+        <footers></footers>
     </v-app>
 </template>
 <script>
   import drawer from '@/components/drawer'
-  // import footers from '@/components/footers'
+  import footers from '@/components/footers'
   import toolbar from '@/components/toolbar'
 
   export default {
     name: 'App',
-    components: {drawer, toolbar},
+    components: {drawer, toolbar, footers},
     data () {
       return {dark: false}
     },

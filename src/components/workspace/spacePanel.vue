@@ -109,6 +109,11 @@
                             v-model="input.apiUrl"
                             hint="请输入请求域名 或 主机:端口"
                     ></v-text-field>
+                    <v-text-field
+                            label="接口地址"
+                            v-model="input.docUrl"
+                            hint="请输入Swagger文档接口地址"
+                    ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
@@ -154,11 +159,24 @@
         application: '',
         wsName: '',
         wsKey: '',
-        apiUrl: ''
+        apiUrl: '',
+        docUrl: ''
       }
     }),
     created () {
       this.load()
+    },
+    watch: {
+      'input.apiUrl': {
+        handler: function (val, oldVal) {
+          if (val === '') {
+            this.input.docUrl = ''
+            return
+          }
+          this.input.docUrl = this.input.apiUrl + '/v2/api-docs'
+        },
+        deep: true
+      }
     },
     methods: {
       load: function () {
