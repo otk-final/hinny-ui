@@ -192,8 +192,8 @@
       basicItems: [],
 
       primaryId: '',
-      logKid: 0,
-      caseKid: 0,
+      logKid: '0',
+      caseKid: '0',
 
       requestArg: {},
       requestBody: '',
