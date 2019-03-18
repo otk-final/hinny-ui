@@ -4,7 +4,7 @@ import Vue from 'vue'
 
 const http = axios.create()
 
-http.defaults.baseURL = 'http://localhost:18080'
+// http.defaults.baseURL = 'http://localhost:18080'
 http.defaults.timeout = 5000
 http.defaults.headers['content-type'] = 'application/json;charset=UTF-8'
 
